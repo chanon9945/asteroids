@@ -33,6 +33,10 @@ def main():
         updatables.update(dt)
         for drawable in drawables:
             drawable.draw(screen)
+        for asteroid in asteroids_group:
+            if player.check_collision(asteroid):
+                print("GAME OVER!")
+                return
         pygame.display.flip()
         dt = clock.tick(60)/1000
 
