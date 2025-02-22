@@ -7,6 +7,8 @@ class Player(CircleShape):
     def __init__(self, x, y):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
+        self.space_pressed = False
+        self.shooting = False
     
     # in the player class
     def triangle(self):
@@ -43,11 +45,16 @@ class Player(CircleShape):
 
         if keys[pygame.K_a]:
             self.move_horizontal(-dt)
-
-        # if keys[pygame.K_SPACE]:
-        #     self.shoot(dt)
         
-        self.shoot(dt)
+        # Toggle shooting on/off
+        space_pressed_now = keys[pygame.K_SPACE]
+        if space_pressed_now and not self.space_was_pressed:
+            self.shooting = not self.shooting  # Toggle between True/False
+        self.space_was_pressed = space_pressed_now
+
+        # If shooting is enabled, create shots
+        if self.shooting:
+            self.shoot(dt)
         
     def move(self,dt):
         forward = pygame.Vector2(0, 1)
