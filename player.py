@@ -7,8 +7,7 @@ class Player(CircleShape):
     def __init__(self, x, y):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
-        self.space_pressed = False
-        self.shooting = False
+        self.Timer = 0
     
     # in the player class
     def triangle(self):
@@ -27,6 +26,8 @@ class Player(CircleShape):
 
     def update(self, dt):
         keys = pygame.key.get_pressed()
+        if self.Timer > 0:
+            self.Timer -= dt
 
         if keys[pygame.K_q]:
             self.rotate(-dt)
@@ -34,35 +35,39 @@ class Player(CircleShape):
         if keys[pygame.K_e]:
             self.rotate(dt)
 
-        if keys[pygame.K_w]:
-            self.move(-dt)
-        
-        if keys[pygame.K_s]:
+        if keys[pygame.K_w] and keys[pygame.K_a]:
+            self.rotation = 135
+            self.move(dt)
+        elif keys[pygame.K_a] and keys[pygame.K_s]:
+            self.rotation = 45
+            self.move(dt)
+        elif keys[pygame.K_s] and keys[pygame.K_d]:
+            self.rotation = -45
+            self.move(dt)
+        elif keys[pygame.K_d] and keys[pygame.K_w]:
+            self.rotation = -135
+            self.move(dt)
+        elif keys[pygame.K_w]:
+            self.rotation = 180
+            self.move(dt)
+        elif keys[pygame.K_a]:
+            self.rotation = 90
+            self.move(dt)
+        elif keys[pygame.K_s]:
+            self.rotation = 0
+            self.move(dt)
+        elif keys[pygame.K_d]:
+            self.rotation = -90
             self.move(dt)
 
-        if keys[pygame.K_d]:
-            self.move_horizontal(dt)
-
-        if keys[pygame.K_a]:
-            self.move_horizontal(-dt)
-        
-        # Toggle shooting on/off
-        space_pressed_now = keys[pygame.K_SPACE]
-        if space_pressed_now and not self.space_was_pressed:
-            self.shooting = not self.shooting  # Toggle between True/False
-        self.space_was_pressed = space_pressed_now
-
-        # If shooting is enabled, create shots
-        if self.shooting:
-            self.shoot(dt)
+        if keys[pygame.K_SPACE]:
+            if self.Timer <= 0:
+                self.shoot(dt)
+                self.Timer = PLAYER_SHOOT_COOLDOWN
         
     def move(self,dt):
         forward = pygame.Vector2(0, 1)
-        self.position += forward * PLAYER_SPEED * dt
-
-    def move_horizontal(self,dt):
-        forward = pygame.Vector2(1, 0)
-        self.position += forward * PLAYER_SPEED * dt
+        self.position += forward.rotate(self.rotation) * PLAYER_SPEED * dt
 
     def shoot(self,dt):
         shot = Shot(self.position)
