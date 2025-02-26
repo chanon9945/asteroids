@@ -5,6 +5,15 @@ from asteroid import *
 from asteroidfield import *
 from shot import *
 
+try:
+    with open("high_score.txt", "r") as file:
+        content = file.read().strip()
+        high_score = int(content) if content else 0
+except (FileNotFoundError, ValueError):
+    high_score = 0
+    with open("high_score.txt", "w") as file:
+        file.write("0")
+
 def main():
     playing = True
     while playing:
@@ -75,9 +84,14 @@ def main():
             pygame.display.flip()
             screen.fill([0,0,0])
             game_over_text = font.render(f"GAME OVER", True, (255, 0, 0))
-            score_game_over_text = font.render(f"SCORE = {round(score)}", True, (255, 255, 255))
+            if score >= high_score:
+                with open("high_score.txt", "w") as file:  # Open file to write
+                    file.write(str(round(score)))
+                score_game_over_text = font.render(f"NEW HIGH SCORE! = {round(score)}", True, (255, 255, 255))
+            else:
+                score_game_over_text = font.render(f"SCORE = {round(score)}", True, (255, 255, 255))
             try_again_text = font.render(f"Press ENTER to try again.", True, (0, 255, 0))
-            exit_text = font.render(f"Press SPACE BAR to exit.", True, (255, 0, 0))
+            exit_text = font.render(f"Press ESC to exit.", True, (255, 0, 0))
             screen.blit(game_over_text, (600,SCREEN_HEIGHT / 2))
             screen.blit(score_game_over_text, (600,SCREEN_HEIGHT / 2 + line_spacing))
             screen.blit(try_again_text, ((600,SCREEN_HEIGHT / 2 + 2*line_spacing)))
@@ -85,7 +99,7 @@ def main():
             keys = pygame.key.get_pressed()
             if keys[pygame.K_RETURN]:
                 break
-            if keys[pygame.K_SPACE]:
+            if keys[pygame.K_ESCAPE]:
                 playing = False
                 break
 
